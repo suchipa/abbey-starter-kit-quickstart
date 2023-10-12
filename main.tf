@@ -54,3 +54,44 @@ resource "abbey_grant_kit" "abbey_demo_site" {
   }
 }
 */
+resource "abbey_grant_kit" "Suchi-demo" {
+  name = "Suchi-demo"
+  description = "Suchi-demo"
+
+  workflow = {
+    steps = [
+      {
+        reviewers = {
+          one_of = [
+            "suchismita.panda@outlook.com"
+          ]
+        }
+      }
+    ]
+  }
+
+  policies = [
+    {
+      query = <<-EOT
+        package common
+        
+        import data.abbey.functions
+        
+        allow[msg] {
+          functions.expire_after("5m")
+          msg := sprintf("granting access for %s", ["5m"])
+        }
+      EOT
+    }
+  ]
+
+  output = {
+    location = "github://suchipa/abbey-starter-kit-quickstart/access.tf"
+    append = <<-EOT
+      resource "abbey_demo" "grant_read_write_access" {
+        permission = "read_write"
+        email = "{{ .data.system.abbey.identities.abbey.email }}"
+      }
+    EOT
+  }
+}
